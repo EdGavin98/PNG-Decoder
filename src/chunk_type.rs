@@ -1,24 +1,68 @@
-#[derive(Eq, PartialEq)]
+use std::convert::{TryFrom};
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
+use crate::{Error, Result};
+
+#[derive(Eq, PartialEq, Debug)]
 pub struct ChunkType([u8; 4]);
 
 impl ChunkType {
+    pub fn bytes(&self) -> [u8; 4] {
+        self.0
+    }
 
+    pub fn is_valid(&self) -> bool {
+        self.is_reserved_bit_valid()
+    }
+
+    pub fn is_critical(&self) -> bool {
+        self.0[0].is_ascii_uppercase()
+    }
+
+    pub fn is_public(&self) -> bool {
+        self.0[1].is_ascii_uppercase()
+    }
+
+    pub fn is_reserved_bit_valid(&self) -> bool {
+        self.0[2].is_ascii_uppercase()
+    }
+
+    pub fn is_safe_to_copy(&self) -> bool {
+        self.0[3].is_ascii_lowercase()
+    }
 }
 
 impl TryFrom<[u8; 4]> for ChunkType {
+    type Error = Error;
 
+    fn try_from(bytes: [u8; 4]) -> Result<Self>{
+        if !bytes.iter().all(|&c| u8::is_ascii_alphabetic(&c)) {
+            return Err("Chunk types must be valid ascii alphabetical characters")?;
+        }
+        Ok(ChunkType(bytes))
+    }
 }
 
 impl FromStr for ChunkType {
+    type Err = Error;
 
+    fn from_str(s: &str) -> Result<Self> {
+        if s.len() != 4 {
+            return Err("Chunk type must be 4 bytes long")?;
+        }
+        let bytes = s.as_bytes();
+        let fixed_bytes = [bytes[0],bytes[1],bytes[2],bytes[3]];
+        return ChunkType::try_from(fixed_bytes)
+    }
 }
 
 impl Display for ChunkType {
-
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let [a, b, c, d] = self.bytes();
+        write!(f, "{}{}{}{}", char::from(a), char::from(b), char::from(c), char::from(d))
+    }
 }
-
-
 
 
 #[cfg(test)]
