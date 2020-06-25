@@ -1,6 +1,7 @@
 use std::convert::{TryFrom};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use anyhow::anyhow;
 
 use crate::{Error, Result};
 
@@ -38,7 +39,7 @@ impl TryFrom<[u8; 4]> for ChunkType {
 
     fn try_from(bytes: [u8; 4]) -> Result<Self>{
         if !bytes.iter().all(|&c| u8::is_ascii_alphabetic(&c)) {
-            return Err("Chunk types must be valid ascii alphabetical characters")?;
+            return Err(anyhow!("Chunk types must be valid ascii alphabetical characters"));
         }
         Ok(ChunkType(bytes))
     }
@@ -49,7 +50,7 @@ impl FromStr for ChunkType {
 
     fn from_str(s: &str) -> Result<Self> {
         if s.len() != 4 {
-            return Err("Chunk type must be 4 bytes long")?;
+            return Err(anyhow!("Chunk type must be 4 bytes"));
         }
         let bytes = s.as_bytes();
         let fixed_bytes = [bytes[0],bytes[1],bytes[2],bytes[3]];
@@ -63,7 +64,6 @@ impl Display for ChunkType {
         write!(f, "{}{}{}{}", char::from(a), char::from(b), char::from(c), char::from(d))
     }
 }
-
 
 #[cfg(test)]
 mod tests {
