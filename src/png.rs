@@ -27,7 +27,7 @@ impl Png {
 
         match search {
             Some(_) => panic!("Chunk already exists"),
-            None => self.chunks.push(chunk)
+            None => self.chunks.insert(self.chunks.len() - 1, chunk) //Insert as second to last chunk so it isn't after IEND
         }
     }
 
