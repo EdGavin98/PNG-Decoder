@@ -1,4 +1,4 @@
-use crate::{Decode, Encode, Remove};
+use crate::args::{Decode, Encode, Remove};
 use std::fs;
 use crate::png::Png;
 use crate::chunk_type::ChunkType;
